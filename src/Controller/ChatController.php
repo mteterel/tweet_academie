@@ -24,17 +24,21 @@ class ChatController extends AbstractController
         $form = $this->createForm(ChatType::class, $conv);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()){
+        if ($form->isSubmitted() && $form->isValid())
+        {
             $conv->addParticipant($this->getUser());
-            $conv->addParticipant($form->get('conv')->getData());
+
+            $participants = $form->get('conv')->getData();
+            foreach ($participants as $p)
+                $conv->addParticipant($p);
+
             $manager->persist($conv);
             $manager->flush();
         }
-        
-            return $this->render('chat/index.html.twig', [
+
+        return $this->render('chat/index.html.twig', [
             'formChat' => $form->createView()
-            ]);
-        
+        ]);
     }
 
     /**

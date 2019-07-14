@@ -23,6 +23,7 @@ class ChatType extends AbstractType
             ])
             ->add('conv', EntityType::class, [
                 'class' => User::class,
+                'multiple' => true,
                 'choice_label' => 'username',
                 'placeholder' => 'Select your correspondant',
                 'mapped' => false
