@@ -61,23 +61,24 @@ class ChatController extends AbstractController
             return new JsonResponse([
                 "time" => date_format($messages->getSubmitTime(), "H:i"),
                 "message" => $messages->getContent()
-                ]);
+            ]);
         }
-        else{
+        else
+        {
             return $this->render('chat/conversation.html.twig', [
-            'formMessages'=> $formMsg->createView(),
-            'conversation' => $chatConversation,
-            'messages' => array_reverse($chatMessageRepository->getLastMessages($chatConversation))
+                'formMessages' => $formMsg->createView(),
+                'conversation' => $chatConversation,
+                'messages' => array_reverse($chatMessageRepository->getLastMessages($chatConversation))
             ]);
         }
     }
-    
+
     /**
      * @Route("/refresh", name="refresh")
      */
     public function refresh(ChatConversation $chatConversation, ChatMessageRepository $chatMessageRepository)
     {
-        $repoResponse = array_reverse($chatMessageRepository->getLastMessages($chatConversation));
+        $repoResponse = array_reverse($chatMessageRepository->getLastMessagesFromOther($chatConversation, 95));
         $templates = [];
         $cards = [];
 

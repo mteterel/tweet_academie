@@ -28,7 +28,7 @@ class ChatType extends AbstractType
                 'multiple' => true,
                 'choice_label' => 'username',
                 'placeholder' => 'Select your correspondant',
-                'mapped' => false
+                'mapped' => false,
             ])
         ;
     }
