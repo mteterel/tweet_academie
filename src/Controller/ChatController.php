@@ -34,6 +34,9 @@ class ChatController extends AbstractController
 
             $manager->persist($conv);
             $manager->flush();
+            return $this->redirectToRoute('conversation_view', [
+                'id' => $conv->getId()
+            ]);
         }
 
         return $this->render('chat/index.html.twig', [
@@ -44,7 +47,22 @@ class ChatController extends AbstractController
     /**
      * @Route("/conversations/{id}", name="conversation_view")
      */
-    public function conversation(ChatConversation $chatConversation, Request $request, ObjectManager $manager, ChatMessageRepository $chatMessageRepository)
+    public function conversation(ChatConversation $chatConversation,
+                                 ChatMessageRepository $chatMessageRepository)
+    {
+        $formMsg = $this->createForm(ChatMessageType::class);
+        return $this->render('chat/conversation.html.twig', [
+            'formMessages' => $formMsg->createView(),
+            'conversation' => $chatConversation,
+            'messages' => array_reverse($chatMessageRepository->getLastMessages($chatConversation))
+        ]);
+    }
+
+    /**
+     * @Route("/conversations/{id}/submit", name="conversation_submit")
+     */
+    public function submit(ChatConversation $chatConversation,
+                           Request $request, ObjectManager $manager)
     {
         $message = new ChatMessage();
         $formMsg = $this->createForm(ChatMessageType::class, $message);
@@ -59,24 +77,18 @@ class ChatController extends AbstractController
             $manager->persist($message);
             $manager->flush();
             return new JsonResponse([
-                "time" => date_format($message->getSubmitTime(), "H:i"),
+                'success' => true,
                 "htmlTemplate" => $this->renderView('chat/_message.html.twig', [
                     'm' => $message
                 ])
             ]);
         }
-        else
-        {
-            return $this->render('chat/conversation.html.twig', [
-                'formMessages' => $formMsg->createView(),
-                'conversation' => $chatConversation,
-                'messages' => array_reverse($chatMessageRepository->getLastMessages($chatConversation))
-            ]);
-        }
+
+        return new JsonResponse(['success' => false]);
     }
 
     /**
-     * @Route("/conversations/{id}/refresh", name="refresh")
+     * @Route("/conversations/{id}/refresh", name="conversation_refresh")
      */
     public function refresh(ChatConversation $chatConversation,
                             ChatMessageRepository $chatMessageRepository)

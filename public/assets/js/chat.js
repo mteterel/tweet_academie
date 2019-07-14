@@ -3,19 +3,20 @@ $(function () {
 });
 $('#send').click(function( event ) {
     event.preventDefault();
-    var url = window.location.href;
 
-    $.ajax({
+    $.ajax(window.location.href + '/submit', {
         type: 'POST',
-        url: url,
         data: new FormData(document.getElementById("formMessages")),
         dataType: 'json',
         processData: false,
         contentType: false,
         success: function (data) {
-            $(data.htmlTemplate).appendTo(".chat_conversation");
-            $('#chat_message_content').val('');
-            $('.chat_conversation').scrollTop(1E10);
+            if (data.success === true)
+            {
+                $('.chat_conversation').append(data.htmlTemplate);
+                $('#chat_message_content').val('');
+                $('.chat_conversation').scrollTop(1E10);
+            }
         }
     });
 });
@@ -33,7 +34,7 @@ $('.chat_conversation').append("<div class='" +
 (async function loopRefresh(){
     await sleep(5);
     $.post(
-        window.location + '/refresh',
+        window.location.href + '/refresh',
         function (data) {
             if (data.success === true)
             {
