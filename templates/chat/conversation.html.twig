@@ -17,26 +17,7 @@
         <h1 class="chat_title">{{ get_chat_title(conversation) }}</h1>
         <div class="chat_conversation">
         {% for m in messages %}
-            {% if m.sender == app.user %}
-                <div class="message_user">
-                    <div class="message_user_manager">
-                        <div class="message_user_container">
-                            <span class="date_user">{{ m.submitTime|date('H:i') }}</span>
-                            <span class="content_user">{{ m.content }}</span>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="message">
-                    <div class="message_manager">
-                        <div class="message_container">
-                            <span class="date">{{ m.submitTime|date('H:i') }}</span>
-                            <span class="author"><a href="{{ path('profile_view', { username: m.sender.username }) }}">@{{ m.sender.username }}</a> :</span>
-                            <span class="content">{{ m.content }}</span>
-                        </div>
-                    </div>
-                </div>
-            {% endif %}      
+            {% include 'chat/_message.html.twig' with { m: m } only %}
         {% endfor %}
         </div>
         {{ form_start(formMessages, {attr: {'id': 'formMessages'}}) }}

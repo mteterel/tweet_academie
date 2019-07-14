@@ -74,31 +74,28 @@ class ChatController extends AbstractController
     }
 
     /**
-     * @Route("/refresh", name="refresh")
+     * @Route("/conversations/{id}/refresh", name="refresh")
      */
-    public function refresh(ChatConversation $chatConversation, ChatMessageRepository $chatMessageRepository)
+    public function refresh(ChatConversation $chatConversation,
+                            ChatMessageRepository $chatMessageRepository)
     {
-        $repoResponse = array_reverse($chatMessageRepository->getLastMessagesFromOther($chatConversation, 95));
-        $templates = [];
-        $cards = [];
+        $user = $this->getUser();
+        if ($user === null)
+            throw $this->createNotFoundException();
 
-        if ($repoResponse !== null)
-        {
-            foreach ($repoResponse as $value)
-                $cards[] = $chatMessageRepository->find($value['id']);
-            foreach ($cards as $card)
-            {
-                $templates[] = $this->renderView('chat/conversation.html.twig', [
-                    'post' => $card
-                ]);
-            }
-        }
-        else
-        {
-            return new JsonResponse([
-                'success' => false
+        $messages = $chatMessageRepository->getLastMessagesFromOther($chatConversation, $user);
+
+        if (count($messages) <= 0)
+            return new JsonResponse(['success' => false]);
+
+        $repoResponse = array_reverse($messages);
+        $templates = [];
+
+        foreach ($repoResponse as $value)
+            $templates[] = $this->renderView('chat/_message.html.twig', [
+                'm' => $value
             ]);
-        }
+
         return new JsonResponse([
             'success' => true,
             'htmlTemplate' => $templates

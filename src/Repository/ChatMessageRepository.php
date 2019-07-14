@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\ChatMessage;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 use App\Entity\ChatConversation;
@@ -20,56 +21,28 @@ class ChatMessageRepository extends ServiceEntityRepository
         parent::__construct($registry, ChatMessage::class);
     }
 
-    // /**
-    //  * @return ChatMessage[] Returns an array of ChatMessage objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?ChatMessage
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
-
     public function getLastMessages(ChatConversation $conv)
     {
         return $this->createQueryBuilder('cm')
-                ->where("cm.conversation = :conv")
-                ->setParameter("conv", $conv)
-                ->orderBy("cm.submit_time", "DESC")
-                ->getQuery()
-                ->getResult();
+            ->where("cm.conversation = :conv")
+            ->setParameter("conv", $conv)
+            ->orderBy("cm.submit_time", "DESC")
+            ->getQuery()
+            ->getResult();
     }
 
-    public function getLastMessagesFromOther(ChatConversation $conv, $user_id)
+    public function getLastMessagesFromOther(ChatConversation $conv, User $user)
     {
         return $this->createQueryBuilder('cm')
-                ->where("cm.conversation = :conv")
-                ->andWhere("cm.submit_time > :date")
-                ->andWhere("cm.sender != $user_id")
-                ->setParameter("conv", $conv)
-                ->setParameter('date', new \DateTime('-5 seconds',
+            ->where("cm.conversation = :conv")
+            ->andWhere("cm.submit_time > :date")
+            ->andWhere("cm.sender != :user")
+            ->setParameter("conv", $conv)
+            ->setParameter('date', new \DateTime('-5 seconds',
                 new \DateTimeZone('Europe/Paris')))
-                ->orderBy("cm.submit_time", "DESC")
-                ->getQuery()
-                ->getResult();
+            ->setParameter("user", $user)
+            ->orderBy("cm.submit_time", "DESC")
+            ->getQuery()
+            ->getResult();
     }
 }
