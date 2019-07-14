@@ -12,13 +12,11 @@
                 {% endif %}
                 <a class="list-group-item list-group-item-action {{ isActiveConversation ? 'active' }}" href="{{ path('conversation_view', { id: conversation.id }) }}">
                     <div class="d-flex w-100 justify-content-between">
-                        {% if conversation.participants[0].username == app.user.username %}
-                            {% set correspondant = conversation.participants[1].username %}
+                        {% if conversation.name is empty %}
+                            <strong class="mb-1">{{ get_chat_title(conversation) }}</strong>
                         {% else %}
-                            {% set correspondant = conversation.participants[0].username %}
+                            <strong class="mb-1">{{ conversation.name }}</strong>
                         {% endif %}
-                        <strong class="mb-1">With {{ correspondant }}</strong>
-                        <strong class="mb-1">{{ conversation.name }}</strong>
                     </div>
                     {% if conversation.chatMessages is not empty %}
                         {% set lastChatMessage = conversation.chatMessages|last %}

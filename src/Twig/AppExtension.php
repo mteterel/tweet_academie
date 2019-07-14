@@ -2,21 +2,28 @@
 
 namespace App\Twig;
 
+use App\Entity\ChatConversation;
+use App\Entity\User;
 use App\Repository\UserRepository;
+use Symfony\Bridge\Doctrine\Security\User\UserLoaderInterface;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension
 {
     /** @var UserRepository $userRepository */
     private $userRepository;
     private $sfRouter;
+    private $tokenStorage;
 
-    public function __construct(RouterInterface $router, UserRepository $userRepository)
+    public function __construct(RouterInterface $router, UserRepository $userRepository, TokenStorageInterface $tsi)
     {
         $this->sfRouter = $router;
         $this->userRepository = $userRepository;
+        $this->tokenStorage = $tsi;
     }
 
     public function getFilters()
@@ -24,6 +31,33 @@ class AppExtension extends AbstractExtension
         return [
             new TwigFilter('format_post', [$this, 'format_post'])
         ];
+    }
+
+    public function getFunctions()
+    {
+        return [
+            new TwigFunction('get_chat_title', [$this, 'get_chat_title'])
+        ];
+    }
+
+    public function get_chat_title(ChatConversation $conversation)
+    {
+        $current_username = $this->tokenStorage->getToken()->getUsername();
+        $participants = $conversation->getParticipants();
+        $participants_cnt = $participants->count();
+        $string = 'Conversation with ';
+
+        for($i = 0; $i != $participants_cnt; ++$i)
+        {
+            $participant = $participants[$i];
+            if ($participant->getUsername() == $current_username)
+                continue;
+            $string .= $participant->getUsername();
+            if ($i < $participants_cnt - 1)
+                $string .= ', ';
+        }
+
+        return $string;
     }
 
     public function format_post(string $postContent)
