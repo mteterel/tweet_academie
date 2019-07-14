@@ -26,7 +26,8 @@ class ChatMessageRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('cm')
             ->where("cm.conversation = :conv")
             ->setParameter("conv", $conv)
-            ->orderBy("cm.submit_time", "DESC")
+            ->addOrderBy('cm.id', 'DESC')
+            ->addOrderBy('cm.submit_time', 'DESC')
             ->getQuery()
             ->getResult();
     }
@@ -41,7 +42,8 @@ class ChatMessageRepository extends ServiceEntityRepository
             ->setParameter('date', new \DateTime('-5 seconds',
                 new \DateTimeZone('Europe/Paris')))
             ->setParameter("user", $user)
-            ->orderBy("cm.submit_time", "DESC")
+            ->addOrderBy('cm.id', 'DESC')
+            ->addOrderBy('cm.submit_time', 'DESC')
             ->getQuery()
             ->getResult();
     }
