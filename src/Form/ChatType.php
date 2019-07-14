@@ -19,9 +19,11 @@ class ChatType extends AbstractType
                 'attr' => [
                     'placeholder' => " Chat title (optional)"
                 ],
+                'label' => 'Conversation name',
                 'required' => false
             ])
             ->add('conv', EntityType::class, [
+                'label' => 'Participants',
                 'class' => User::class,
                 'multiple' => true,
                 'choice_label' => 'username',
