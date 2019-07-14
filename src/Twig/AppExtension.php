@@ -44,17 +44,23 @@ class AppExtension extends AbstractExtension
     {
         $current_username = $this->tokenStorage->getToken()->getUsername();
         $participants = $conversation->getParticipants();
-        $participants_cnt = $participants->count();
+        $participants = array_filter($participants->toArray(), function($elem) use ($current_username) {
+            /** @var User $elem */
+            return $elem->getUsername() !== $current_username;
+        });
+
+        $participants_cnt = count($participants);
         $string = 'Conversation with ';
 
-        for($i = 0; $i != $participants_cnt; ++$i)
+        $i = 0;
+        foreach($participants as $participant)
         {
-            $participant = $participants[$i];
             if ($participant->getUsername() == $current_username)
                 continue;
             $string .= $participant->getUsername();
             if ($i < $participants_cnt - 1)
                 $string .= ', ';
+            $i++;
         }
 
         return $string;
