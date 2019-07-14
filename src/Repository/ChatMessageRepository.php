@@ -58,4 +58,18 @@ class ChatMessageRepository extends ServiceEntityRepository
                 ->getQuery()
                 ->getResult();
     }
+
+    public function getLastMessagesFromOther(ChatConversation $conv, $user_id)
+    {
+        return $this->createQueryBuilder('cm')
+                ->where("cm.conversation = :conv")
+                ->andWhere("cm.submit_time > :date")
+                ->andWhere("cm.sender != $user_id")
+                ->setParameter("conv", $conv)
+                ->setParameter('date', new \DateTime('-5 seconds',
+                new \DateTimeZone('Europe/Paris')))
+                ->orderBy("cm.submit_time", "DESC")
+                ->getQuery()
+                ->getResult();
+    }
 }
