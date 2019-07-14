@@ -60,11 +60,11 @@
         </a>
         <button class="btn {{ repostBtnClass }} btn-sm post-card__repost-btn" title="Copyquack">
             <i class="fas fa-retweet"></i>
-            <span>{{ realPost.reposts|length }}</span>
+            <span class="post-card__repost-count">{{ realPost.reposts|length }}</span>
         </button>
         <button class="btn {{ likeBtnClass }} btn-sm post-card__like-btn" title="Like">
             <i class="far fa-heart"></i>
-            <span>{{ realPost.favorites|length }}</span>
+            <span class="post-card__like-count">{{ realPost.favorites|length }}</span>
         </button>
         {#<button class="btn btn-outline-secondary btn-sm" title="Direct message">
             <i class="far fa-envelope"></i>

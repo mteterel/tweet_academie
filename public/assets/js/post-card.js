@@ -6,6 +6,9 @@ $(document).on('click', '.post-card__like-btn', function() {
     $.ajax('/post/' + postId + '/like', {
         dataType: 'json',
         success: function(data) {
+            $(self).find('.post-card__like-count')
+                .text(data.count || 0);
+
             if (data.favorite === true)
                 $(self).removeClass('btn-outline-secondary')
                     .addClass('btn-outline-danger');
@@ -19,6 +22,7 @@ $(document).on('click', '.post-card__like-btn', function() {
 $(document).on('click', '.post-card__repost-btn', function() {
     $postCard = $(this).parents('.post-card');
     postId = $($postCard).attr('data-post-id');
+    var self = $(this);
 
     $.ajax('/post/' + postId + '/repost', {
         dataType: 'json',
@@ -27,6 +31,9 @@ $(document).on('click', '.post-card__repost-btn', function() {
                 alert("Broken duck");
             else
             {
+                $(self).find('.post-card__repost-count')
+                    .text(data.count || 0);
+
                 $('.timeline').prepend(data.htmlTemplate);
                 $($('.card-timeline')[0]).hide();
                 $($('.card-timeline')[0]).css('opacity', '0');

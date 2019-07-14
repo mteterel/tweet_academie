@@ -33,7 +33,7 @@ class PostController extends AbstractController
     public function like(Post $post, FavoriteRepository $favoriteRepository, ObjectManager $objectManager)
     {
         $realPost = $post->getSourcePost() ?? $post;
-        $favorite = $favoriteRepository->findBy([
+        $favorite = $favoriteRepository->findOneBy([
             'user' => $this->getUser(),
             'post' => $realPost
         ]);
@@ -41,7 +41,7 @@ class PostController extends AbstractController
         /** @var \App\Entity\User $user */
         $user = $this->getUser();
 
-        if (empty($favorite))
+        if ($favorite == null)
         {
             $entry = new Favorite();
             $entry->setPost($realPost);
@@ -60,15 +60,19 @@ class PostController extends AbstractController
             $objectManager->persist($notification);
             $objectManager->persist($entry);
             $objectManager->flush();
-            return new JsonResponse(['favorite' => true]);
+            return new JsonResponse([
+                'favorite' => true,
+                'count' => $realPost->getFavorites()->count()
+            ]);
         }
         else
         {
-            foreach ($favorite as $f)
-                $objectManager->remove($f);
-
+            $objectManager->remove($favorite);
             $objectManager->flush();
-            return new JsonResponse(['favorite' => false]);
+            return new JsonResponse([
+                'favorite' => false,
+                'count' => $realPost->getFavorites()->count()
+            ]);
         }
     }
 
@@ -80,11 +84,12 @@ class PostController extends AbstractController
     {
         /** @var User $user */
         $user = $this->getUser();
+        $realPost = $post->getSourcePost() ?? $post;
 
         // TODO: delete already reposted
         $existing = $postRepository->findOneBy([
             'sender' => $user,
-            'source_post' => $post->getSourcePost() ?? $post
+            'source_post' => $realPost
         ]);
 
         if ($existing !== null)
@@ -93,7 +98,8 @@ class PostController extends AbstractController
             $objectManager->flush();
             return new JsonResponse([
                 'success' => true,
-                'reposted' => false
+                'reposted' => false,
+                'count' => $realPost->getReposts()->count()
             ]);
         }
 
@@ -124,7 +130,8 @@ class PostController extends AbstractController
         return new JsonResponse([
             'success' => true,
             'reposted' => true,
-            'htmlTemplate' => $template
+            'htmlTemplate' => $template,
+            'count' => $realPost->getReposts()->count()
         ]);
     }
 
