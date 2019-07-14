@@ -46,21 +46,23 @@ class ChatController extends AbstractController
      */
     public function conversation(ChatConversation $chatConversation, Request $request, ObjectManager $manager, ChatMessageRepository $chatMessageRepository)
     {
-        $messages = new ChatMessage();
-        $formMsg = $this->createForm(ChatMessageType::class, $messages);
+        $message = new ChatMessage();
+        $formMsg = $this->createForm(ChatMessageType::class, $message);
         $formMsg->handleRequest($request);
 
         if ($formMsg->isSubmitted() && $formMsg->isValid())
         {
-            $messages->setConversation($chatConversation);
-            $messages->setSender($this->getUser());
-            $messages->getContent($formMsg->get('content')->getData());
-            $messages->setSubmitTime(new \DateTime());
-            $manager->persist($messages);
+            $message->setConversation($chatConversation);
+            $message->setSender($this->getUser());
+            $message->setContent($formMsg->get('content')->getData());
+            $message->setSubmitTime(new \DateTime());
+            $manager->persist($message);
             $manager->flush();
             return new JsonResponse([
-                "time" => date_format($messages->getSubmitTime(), "H:i"),
-                "message" => $messages->getContent()
+                "time" => date_format($message->getSubmitTime(), "H:i"),
+                "htmlTemplate" => $this->renderView('chat/_message.html.twig', [
+                    'm' => $message
+                ])
             ]);
         }
         else
